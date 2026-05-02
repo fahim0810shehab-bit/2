@@ -17,7 +17,8 @@ export const mediaService = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-blocks-key': PROJECT_KEY
         },
         body: JSON.stringify({
           name: file.name,
