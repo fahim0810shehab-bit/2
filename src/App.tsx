@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate, useNavigate, Outlet } from 'react-router-dom';
 import Editor from './Editor';
 import Dashboard from './Dashboard';
+import Auth from './Auth';
+import OidcCallback from './OidcCallback';
 import VibeRenderer from './components/vibe/VibeRenderer';
 import { contentService } from './services/contentService';
+import { authService } from './services/authService';
 import { SiteData, VibeNode } from './types/vibe';
+
+const ProtectedRoute = () => {
+  if (!authService.isAuthenticated()) {
+    return <Navigate to="/auth" replace />;
+  }
+  return <Outlet />;
+};
 
 const LiveSite = () => {
   const { username, '*': path } = useParams();
@@ -54,9 +64,17 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/vibebuilder" replace />} />
-        <Route path="/vibebuilder" element={<Dashboard />} />
-        <Route path="/editor" element={<Editor />} />
+        
+        {/* Public Routes */}
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/oidc" element={<OidcCallback />} />
         <Route path="/site/:username/*" element={<LiveSite />} />
+        
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/vibebuilder" element={<Dashboard />} />
+          <Route path="/editor" element={<Editor />} />
+        </Route>
       </Routes>
     </Router>
   );
