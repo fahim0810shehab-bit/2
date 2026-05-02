@@ -1,9 +1,17 @@
 import { VibeNode, SiteData } from '../types/vibe';
 import { defaultRootNode } from '../utils/vibeDefaults';
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || 'https://api.seliseblocks.com';
-const BLOCKS_KEY = (import.meta as any).env.VITE_X_BLOCKS_KEY;
-const PROJECT_SLUG = (import.meta as any).env.VITE_PROJECT_SLUG || 'vibesite';
+const getEnv = (key: string, _default?: string) => {
+  const val = (import.meta as any).env[key];
+  if (!val || val === 'undefined' || val === 'null' || val.trim() === '') {
+    return _default;
+  }
+  return val;
+};
+
+const API_BASE_URL = getEnv('VITE_API_BASE_URL', 'https://api.seliseblocks.com');
+const BLOCKS_KEY = getEnv('VITE_X_BLOCKS_KEY');
+const PROJECT_SLUG = getEnv('VITE_PROJECT_SLUG', 'vibesite');
 
 // Assuming a content model named "websites" exists in Selise Content Block
 const BASE_COLLECTION_URL = `${API_BASE_URL}/api/content/v1/projects/${PROJECT_SLUG}/collections/websites/records`;
