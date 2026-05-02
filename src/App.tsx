@@ -1,20 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams, Navigate, useNavigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import Editor from './Editor';
 import Dashboard from './Dashboard';
-import Auth from './Auth';
-import OidcCallback from './OidcCallback';
 import VibeRenderer from './components/vibe/VibeRenderer';
 import { contentService } from './services/contentService';
-import { authService } from './services/authService';
-import { SiteData, VibeNode } from './types/vibe';
-
-const ProtectedRoute = () => {
-  if (!authService.isAuthenticated()) {
-    return <Navigate to="/auth" replace />;
-  }
-  return <Outlet />;
-};
+import { SiteData } from './types/vibe';
 
 const LiveSite = () => {
   const { username, '*': path } = useParams();
@@ -34,12 +24,11 @@ const LiveSite = () => {
   if (!siteData) return <div className="h-screen flex items-center justify-center p-4">Site not found.</div>;
 
   const currentPath = `/${path || ''}`.replace(/\/$/, '') || '/';
-  
   let pageToRender = siteData.pages?.find(p => p.path === currentPath || p.path === currentPath + '/');
-  
+
   if (!pageToRender) {
     if (currentPath === '/' && siteData.pages && siteData.pages.length > 0) {
-      pageToRender = siteData.pages.find(p => p.name.toLowerCase() === 'home' || p.path === '/') || siteData.pages[0]; // fallback to first page if root is requested
+      pageToRender = siteData.pages.find(p => p.name.toLowerCase() === 'home' || p.path === '/') || siteData.pages[0];
     } else if (siteData.rootNode && (currentPath === '/' || currentPath === '')) {
       pageToRender = { id: 'legacy', name: 'Home', path: '/', rootNode: siteData.rootNode };
     }
@@ -49,12 +38,12 @@ const LiveSite = () => {
 
   return (
     <div className="min-h-screen bg-white">
-       <VibeRenderer 
-          node={pageToRender.rootNode} 
-          mode="preview" 
-          selectedId={null} 
-          hoveredId={null} 
-       />
+      <VibeRenderer
+        node={pageToRender.rootNode}
+        mode="preview"
+        selectedId={null}
+        hoveredId={null}
+      />
     </div>
   );
 };
@@ -64,17 +53,9 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/vibebuilder" replace />} />
-        
-        {/* Public Routes */}
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/oidc" element={<OidcCallback />} />
+        <Route path="/vibebuilder" element={<Dashboard />} />
+        <Route path="/editor" element={<Editor />} />
         <Route path="/site/:username/*" element={<LiveSite />} />
-        
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/vibebuilder" element={<Dashboard />} />
-          <Route path="/editor" element={<Editor />} />
-        </Route>
       </Routes>
     </Router>
   );
