@@ -29,7 +29,7 @@ export const mediaService = {
           configurationName: 'Default',
           parentDirectoryId: '',
           tags: '',
-          moduleName: 'DefaultConstruct' // Required default module name
+          moduleName: 8 // DefaultConstruct = 8 (must be a number)
         })
       });
 
