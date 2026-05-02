@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { authService } from './services/authService';
 
 export default function Auth() {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    await authService.loginWithSelise();
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center text-zinc-100 p-4">
       <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-xl p-8 shadow-2xl text-center">
@@ -10,12 +17,20 @@ export default function Auth() {
         </div>
         <h1 className="text-2xl font-bold mb-2">Welcome to VibeBuilder</h1>
         <p className="text-zinc-400 text-sm mb-8">Sign in to your workspace to continue building amazing websites.</p>
-        
-        <button 
-          onClick={() => authService.loginWithSelise()}
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
         >
-          Login with Selise
+          {loading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Redirecting...
+            </>
+          ) : (
+            'Login with Selise'
+          )}
         </button>
       </div>
     </div>

@@ -6,20 +6,29 @@ export default function OidcCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash) {
-      // The hash string looks like #access_token=...&id_token=...
-      const params = new URLSearchParams(hash.substring(1));
-      const accessToken = params.get('access_token');
-      const idToken = params.get('id_token');
-      
-      if (accessToken && idToken) {
-        authService.handleSeliseCallback(accessToken, idToken);
-        navigate('/vibebuilder', { replace: true });
-        return;
-      }
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+    const error = searchParams.get('error');
+
+    if (error) {
+      console.error('OIDC error:', error, searchParams.get('error_description'));
+      navigate('/auth', { replace: true });
+      return;
     }
-    // If no tokens or failed, go to auth
+
+    if (code) {
+      authService.exchangeCodeForToken(code).then(success => {
+        if (success) {
+          navigate('/vibebuilder', { replace: true });
+        } else {
+          navigate('/auth', { replace: true });
+        }
+      });
+      return;
+    }
+
+    // No code or error — go back to login
     navigate('/auth', { replace: true });
   }, [navigate]);
 
