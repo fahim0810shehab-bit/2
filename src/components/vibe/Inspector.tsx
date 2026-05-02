@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { VibeNode } from '../../types/vibe';
 import { ChevronDown, ChevronRight, Settings, Layout, Type, Palette, MousePointer2 } from 'lucide-react';
+import { mediaService } from '../../services/mediaService';
 
 const ControlGroup: React.FC<{label: string, icon?: React.ReactNode, children: React.ReactNode, defaultOpen?: boolean}> = ({label, icon, children, defaultOpen = false}) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -80,8 +81,12 @@ export default function Inspector({ node, onChange }: { node: VibeNode | null, o
       setUploading(true);
       try {
         const file = e.target.files[0];
-        const url = URL.createObjectURL(file);
-        onChange({ ...node, src: url });
+        const uploadedUrl = await mediaService.uploadImage(file);
+        if (uploadedUrl) {
+          onChange({ ...node, src: uploadedUrl });
+        } else {
+          alert('Failed to upload image to Selise blocks.');
+        }
       } catch(err) { console.error(err); }
       setUploading(false);
     }

@@ -105,6 +105,22 @@ export default function Editor() {
     setSaving(false);
   };
 
+  // Real-time Auto-Save
+  useEffect(() => {
+    if (loading || !siteData || !activePageId) return;
+    
+    const timeoutId = setTimeout(async () => {
+      const updatedPages = siteData.pages.map(p => 
+        p.id === activePageId ? { ...p, rootNode: buildCurrentRoot() } : p
+      );
+      const newSiteData = { ...siteData, pages: updatedPages, is_published: true };
+      // Background silent save
+      await contentService.saveSiteData(newSiteData);
+    }, 2500);
+
+    return () => clearTimeout(timeoutId);
+  }, [historyState.currentIndex, activePageId]);
+
   const handlePageSwitch = (pageId: string) => {
     if (!siteData) return;
     // Auto-save current page
